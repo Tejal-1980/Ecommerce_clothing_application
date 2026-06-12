@@ -21,3 +21,10 @@ frontend/dist/
 .DS_Store
 .env
 *.env
+node_modules/
+frontend/node_modules/
+
+.env
+*.env
+__pycache__/
+db.sqlite3
