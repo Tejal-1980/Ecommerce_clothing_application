@@ -1,26 +1,17 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 function Navbar() {
-  const { cartItems } = useCart();
-
   return (
-    <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-      <Link
-        to="/"
-        className="text-2xl font-bold"
-      >
+    <nav className="flex justify-between p-4 border-b">
+      <h1 className="text-2xl font-bold">
         Fashion Store
-      </Link>
+      </h1>
 
-      <div className="flex gap-6">
-        <Link to="/">
-          Home
-        </Link>
-
-        <Link to="/cart">
-          Cart ({cartItems.length})
-        </Link>
+      <div className="space-x-4">
+        <Link to="/">Home</Link>
+        <Link to="/login">Login</Link>
+        <Link to="/register">Register</Link>
+        <Link to="/cart">Cart</Link>
       </div>
     </nav>
   );

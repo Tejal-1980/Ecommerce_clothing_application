@@ -28,3 +28,8 @@ frontend/node_modules/
 *.env
 __pycache__/
 db.sqlite3
+__pycache__/
+*.pyc
+__pycache__/
+*.pyc
+node_modules/

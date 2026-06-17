@@ -122,11 +122,7 @@ The app will be available at `http://localhost:5173`
 
 ---
 
-## 📸 Screenshots
 
-> _Add screenshots of the product listing, cart, and checkout pages here._
-
----
 
 ## 🚀 Future Improvements
 
@@ -141,8 +137,3 @@ The app will be available at `http://localhost:5173`
 
 **Tejal**
 Full Stack Developer Intern | React.js · Django REST Framework · PostgreSQL
-<<<<<<< HEAD
-[LinkedIn](#) · [GitHub](#)
-=======
-[LinkedIn](#) · [GitHub](#)
->>>>>>> deaa59d2faf069a3dbc50dec4f32cab9469577fe

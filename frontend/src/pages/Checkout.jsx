@@ -1,34 +1,37 @@
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 
 function Checkout() {
   const navigate = useNavigate();
 
-  const { clearCart } = useCart();
-
-  const handlePayment = () => {
-    alert("Payment Successful!");
-
-    clearCart();
-
-    navigate("/success");
-  };
-
   return (
-    <div className="max-w-xl mx-auto p-10 text-center">
+    <div className="max-w-xl mx-auto p-10">
       <h1 className="text-4xl font-bold mb-6">
         Checkout
       </h1>
 
-      <p className="mb-6">
-        Demo payment system.
-      </p>
+      <input
+        type="text"
+        placeholder="Full Name"
+        className="border p-3 w-full mb-4"
+      />
+
+      <input
+        type="text"
+        placeholder="Phone Number"
+        className="border p-3 w-full mb-4"
+      />
+
+      <input
+        type="text"
+        placeholder="Address"
+        className="border p-3 w-full mb-4"
+      />
 
       <button
-        onClick={handlePayment}
+        onClick={() => navigate("/payment")}
         className="bg-black text-white px-6 py-3 rounded"
       >
-        Pay Now
+        Proceed to Payment
       </button>
     </div>
   );
