@@ -45,20 +45,19 @@ function ProductList() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-14 text-center">
-          <p className="uppercase tracking-[0.3em] text-sm text-gray-500">
-            New Collection
-          </p>
-
-          <h1 className="mt-4 text-5xl font-bold text-gray-900">
-            Fashion Store
+      <section className="bg-gradient-to-r from-black to-gray-700 text-white">
+        <div className="max-w-7xl mx-auto py-24 text-center">
+          <h1 className="text-6xl font-bold">
+            Summer Collection 2026
           </h1>
 
-          <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-            Discover timeless styles crafted for modern living.
-            Explore our latest arrivals and elevate your wardrobe.
+          <p className="mt-5 text-xl">
+            Discover premium fashion styles.
           </p>
+
+          <button className="mt-8 bg-white text-black px-8 py-3 rounded-full hover:scale-110 transition">
+            Shop Now
+          </button>
         </div>
       </section>
 

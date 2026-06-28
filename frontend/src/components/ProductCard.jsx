@@ -1,10 +1,14 @@
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 function ProductCard({ product }) {
   const { addToCart } = useCart();
 
+  const { addWishlist } =
+    useWishlist();
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-105 transition duration-300 hover:shadow-2xl">
       <img
         src={product.image}
         alt={product.name}
@@ -20,15 +24,26 @@ function ProductCard({ product }) {
           {product.description}
         </p>
 
-        <p className="text-xl font-bold mb-4">
+        <p className="text-2xl font-bold mb-4">
           ₹{product.price}
         </p>
 
         <button
-          onClick={() => addToCart(product)}
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+          onClick={() =>
+            addToCart(product)
+          }
+          className="w-full bg-black text-white py-2 rounded mb-2 hover:bg-gray-800 transition"
         >
           Add to Cart
+        </button>
+
+        <button
+          onClick={() =>
+            addWishlist(product)
+          }
+          className="w-full border py-2 rounded hover:bg-pink-100 transition"
+        >
+          ❤️ Wishlist
         </button>
       </div>
     </div>
