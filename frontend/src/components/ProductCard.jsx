@@ -1,51 +1,74 @@
+// ProductCard.jsx
+
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 
 function ProductCard({ product }) {
-  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
-  const { addWishlist } =
-    useWishlist();
+  const { addToCart } = useCart();
+  const { addWishlist } = useWishlist();
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-105 transition duration-300 hover:shadow-2xl">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-full h-64 object-cover"
-      />
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition duration-300">
 
-      <div className="p-4">
-        <h2 className="text-lg font-semibold mb-2">
+      <div
+        onClick={() => navigate(`/product/${product.id}`)}
+        className="cursor-pointer overflow-hidden"
+      >
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-72 object-cover hover:scale-110 transition duration-500"
+        />
+      </div>
+
+      <div className="p-5">
+
+        <h2 className="text-xl font-semibold">
           {product.name}
         </h2>
 
-        <p className="text-gray-600 mb-2">
+        <p className="text-gray-500 mt-2 line-clamp-2">
           {product.description}
         </p>
 
-        <p className="text-2xl font-bold mb-4">
-          ₹{product.price}
-        </p>
+        <div className="flex justify-between items-center mt-4">
+
+          <p className="text-2xl font-bold">
+            ₹{product.price}
+          </p>
+
+          <span className="text-green-600 font-semibold">
+            In Stock
+          </span>
+
+        </div>
 
         <button
-          onClick={() =>
-            addToCart(product)
-          }
-          className="w-full bg-black text-white py-2 rounded mb-2 hover:bg-gray-800 transition"
+          onClick={() => navigate(`/product/${product.id}`)}
+          className="w-full mt-5 border border-black py-2 rounded-lg hover:bg-black hover:text-white transition"
         >
-          Add to Cart
+          View Details
         </button>
 
         <button
-          onClick={() =>
-            addWishlist(product)
-          }
-          className="w-full border py-2 rounded hover:bg-pink-100 transition"
+          onClick={() => addToCart(product)}
+          className="w-full mt-3 bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
+        >
+          Add To Cart
+        </button>
+
+        <button
+          onClick={() => addWishlist(product)}
+          className="w-full mt-3 border border-pink-500 text-pink-500 py-2 rounded-lg hover:bg-pink-500 hover:text-white transition"
         >
           ❤️ Wishlist
         </button>
+
       </div>
+
     </div>
   );
 }

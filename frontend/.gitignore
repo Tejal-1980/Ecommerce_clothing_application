@@ -50,3 +50,8 @@ dist/
 build/
 
 .vscode/
+backend/node_modules/
+backend/store/migrations/__pycache__/
+node_modules/
+__pycache__/
+*.pyc
