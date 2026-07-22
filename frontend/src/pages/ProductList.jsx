@@ -1,199 +1,127 @@
-// src/pages/ProductList.jsx
-
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import useDebounce from "../hooks/useDebounce";
 
 function ProductList() {
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
 
-  const [searchParams] = useSearchParams();
-
-  const searchQuery = searchParams.get("search") || "";
-
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [category, setCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("default");
+  const [searchParams] = useSearchParams();
+
+  const search = searchParams.get("search") || "";
+  const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
-    fetch(`${BASEURL}/api/products/`)
-      .then((response) => {
-        if (!response.ok) {
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`${BASEURL}/api/products/`);
+
+        if (!res.ok) {
           throw new Error("Failed to fetch products");
         }
-        return response.json();
-      })
-      .then((data) => {
+
+        const data = await res.json();
+
         setProducts(data);
-        setFilteredProducts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    fetchProducts();
   }, [BASEURL]);
 
-  const categories = useMemo(() => {
-    const all = products.map((p) => p.category.name);
-    return ["All", ...new Set(all)];
-  }, [products]);
+  const filteredProducts = useMemo(() => {
+    if (!debouncedSearch.trim()) return products;
 
-  useEffect(() => {
-    let data = [...products];
+    const keyword = debouncedSearch.toLowerCase();
 
-    if (searchQuery) {
-      data = data.filter((product) =>
-        product.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
+    return products.filter((product) => {
+      return (
+        product.name.toLowerCase().includes(keyword) ||
+        product.description.toLowerCase().includes(keyword) ||
+        product.category.name.toLowerCase().includes(keyword)
       );
-    }
-
-    if (category !== "All") {
-      data = data.filter(
-        (product) => product.category.name === category
-      );
-    }
-
-    if (sortBy === "low") {
-      data.sort((a, b) => a.price - b.price);
-    }
-
-    if (sortBy === "high") {
-      data.sort((a, b) => b.price - a.price);
-    }
-
-    if (sortBy === "newest") {
-      data.sort(
-        (a, b) =>
-          new Date(b.created_at) -
-          new Date(a.created_at)
-      );
-    }
-
-    setFilteredProducts(data);
-  }, [products, category, sortBy, searchQuery]);
+    });
+  }, [products, debouncedSearch]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-2xl">
-        Loading Products...
+      <div className="min-h-screen flex items-center justify-center text-xl">
+        Loading products...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-red-500 text-2xl">
+      <div className="min-h-screen flex items-center justify-center text-red-500 text-xl">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-
-      {/* Hero */}
+    <div className="min-h-screen bg-gray-50">
 
       <section className="bg-gradient-to-r from-black to-gray-700 text-white">
-
         <div className="max-w-7xl mx-auto py-24 text-center">
-
           <h1 className="text-6xl font-bold">
             Summer Collection 2026
           </h1>
 
           <p className="mt-5 text-xl">
-            Premium Fashion For Everyone
+            Discover Premium Fashion
           </p>
-
         </div>
-
       </section>
 
-      {/* Filter */}
+      <section className="max-w-7xl mx-auto px-6 py-12">
 
-      <div className="max-w-7xl mx-auto px-6 py-10 flex flex-wrap gap-5 justify-between items-center">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold">
+            {search
+              ? `Search: "${search}"`
+              : "Featured Products"}
+          </h2>
 
-        <h2 className="text-3xl font-bold">
-          Products
-        </h2>
-
-        <div className="flex gap-4">
-
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
-            className="border rounded-lg px-4 py-2"
-          >
-            {categories.map((item) => (
-              <option
-                key={item}
-                value={item}
-              >
-                {item}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) =>
-              setSortBy(e.target.value)
-            }
-            className="border rounded-lg px-4 py-2"
-          >
-            <option value="default">
-              Sort
-            </option>
-
-            <option value="low">
-              Price Low → High
-            </option>
-
-            <option value="high">
-              Price High → Low
-            </option>
-
-            <option value="newest">
-              Newest
-            </option>
-          </select>
-
+          <span>{filteredProducts.length} Products</span>
         </div>
 
-      </div>
-
-      {/* Products */}
-
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-
         {filteredProducts.length === 0 ? (
-          <div className="text-center text-2xl text-gray-500 py-24">
-            No Products Found
+          <div className="text-center py-20">
+
+            <div className="text-7xl mb-5">
+              🔍
+            </div>
+
+            <h2 className="text-3xl font-bold">
+              Product Not Available
+            </h2>
+
+            <p className="text-gray-500 mt-3">
+              No product found for "{search}"
+            </p>
+
           </div>
         ) : (
           <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
               />
             ))}
-
           </div>
         )}
 
-      </div>
+      </section>
 
     </div>
   );

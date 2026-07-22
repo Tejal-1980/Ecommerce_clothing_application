@@ -1,6 +1,4 @@
-// src/components/Navbar.jsx
-
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 
 import { useAuth } from "../context/AuthContext";
@@ -9,15 +7,16 @@ import { useCart } from "../context/CartContext";
 
 function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
+
+  const [searchParams] = useSearchParams();
 
   const { user, logout } = useAuth();
-
   const { wishlist } = useWishlist();
-
   const { cartItems } = useCart();
 
-  const [search, setSearch] = useState("");
+  const initialSearch = searchParams.get("search") || "";
+
+  const [search, setSearch] = useState(initialSearch);
 
   const handleLogout = () => {
     logout();
@@ -27,19 +26,25 @@ function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    navigate("/", {
-      state: {
-        search,
-      },
-    });
+    const keyword = search.trim();
+
+    if (!keyword) {
+      navigate("/");
+      return;
+    }
+
+    navigate(`/?search=${encodeURIComponent(keyword)}`);
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    navigate("/");
   };
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md">
 
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-
-        {/* Logo */}
 
         <Link
           to="/"
@@ -48,8 +53,6 @@ function Navbar() {
           Fashion Store
         </Link>
 
-        {/* Search */}
-
         <form
           onSubmit={handleSearch}
           className="hidden md:flex flex-1 mx-10"
@@ -57,34 +60,34 @@ function Navbar() {
 
           <input
             type="text"
-            placeholder="Search Products..."
+            placeholder="Search products..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            className="w-full border rounded-l-lg px-4 py-2 outline-none"
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full border border-gray-300 rounded-l-lg px-4 py-2 outline-none focus:border-black"
           />
 
+          {search && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="px-4 border-y border-gray-300 hover:bg-gray-100"
+            >
+              ✕
+            </button>
+          )}
+
           <button
-            className="bg-black text-white px-6 rounded-r-lg"
+            type="submit"
+            className="bg-black text-white px-6 rounded-r-lg hover:bg-gray-800"
           >
-            Search
+            🔍
           </button>
 
         </form>
 
-        {/* Navigation */}
-
         <div className="flex items-center gap-6">
 
-          <Link
-            to="/"
-            className={
-              location.pathname === "/"
-                ? "font-bold"
-                : ""
-            }
-          >
+          <Link to="/">
             Home
           </Link>
 
@@ -131,10 +134,7 @@ function Navbar() {
             </button>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="hover:font-semibold"
-              >
+              <Link to="/login">
                 Login
               </Link>
 
