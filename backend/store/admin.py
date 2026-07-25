@@ -1,11 +1,9 @@
 from django.contrib import admin
-
 from .models import (
     Category,
     Product,
-    Review,
-    Address,
     UserProfile,
+    Address,
     Order,
     OrderItem,
 )
@@ -27,33 +25,11 @@ class ProductAdmin(admin.ModelAdmin):
         "created_at",
     )
 
-    list_filter = (
-        "category",
-    )
+    list_filter = ("category",)
 
     search_fields = (
         "name",
         "description",
-    )
-
-
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "product",
-        "user",
-        "rating",
-        "created_at",
-    )
-
-    list_filter = (
-        "rating",
-    )
-
-    search_fields = (
-        "product__name",
-        "user__username",
     )
 
 
@@ -67,7 +43,13 @@ class AddressAdmin(admin.ModelAdmin):
         "city",
         "state",
         "pincode",
-        "created_at",
+        "is_primary",
+    )
+
+    list_filter = (
+        "city",
+        "state",
+        "is_primary",
     )
 
     search_fields = (
@@ -101,13 +83,11 @@ class OrderAdmin(admin.ModelAdmin):
         "id",
         "user",
         "payment_method",
-        "status",
         "total_price",
         "created_at",
     )
 
     list_filter = (
-        "status",
         "payment_method",
     )
 
@@ -115,6 +95,4 @@ class OrderAdmin(admin.ModelAdmin):
         "user__username",
     )
 
-    inlines = [
-        OrderItemInline,
-    ]
+    inlines = [OrderItemInline]
