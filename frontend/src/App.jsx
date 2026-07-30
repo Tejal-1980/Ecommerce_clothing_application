@@ -16,7 +16,7 @@ import Checkout from "./pages/Checkout";
 import Payment from "./pages/Payment";
 import Success from "./pages/Success";
 
-import Login from "./pages/Login";
+import Login from "./pages/login";
 import Register from "./pages/Register";
 
 import Profile from "./pages/Profile";
