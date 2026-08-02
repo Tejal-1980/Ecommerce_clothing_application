@@ -29,11 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
-CSRF_TRUSTED_ORIGINS = [
-    "https://ecommerce-clothing-application-1.onrender.com",
-]
-
+# # ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+# # CSRF_TRUSTED_ORIGINS = [
+# #     "https://ecommerce-clothing-application-1.onrender.com",
+# ]
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "127.0.0.1,localhost,ecommerce-clothing-application-1.onrender.com",
+).split(",")
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,9 +47,18 @@ INSTALLED_APPS = [
     'store',
     'rest_framework', 
     'corsheaders',
+    "cloudinary_storage",
+    "cloudinary",
 
 
 ]
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -125,14 +137,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
-
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
