@@ -17,22 +17,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = "__all__"
-
-    def get_image(self, obj):
-        request = self.context.get("request")
-
-        if not obj.image:
-            return None
-
-        if request:
-            return request.build_absolute_uri(obj.image.url)
-
-        return obj.image.url
 
 
 class AddressSerializer(serializers.ModelSerializer):
