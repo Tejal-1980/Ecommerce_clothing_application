@@ -9,21 +9,19 @@ function ProductCard({ product }) {
   const { addWishlist } = useWishlist();
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
 
       {/* Product Image */}
       <div
         onClick={() => navigate(`/product/${product.id}`)}
-        className="cursor-pointer overflow-hidden"
+        className="cursor-pointer"
       >
         <img
           src={product.image}
           alt={product.name}
           className="
             w-full
-            h-48
-            sm:h-56
-            lg:h-72
+            aspect-square
             object-cover
             hover:scale-105
             transition
@@ -33,24 +31,55 @@ function ProductCard({ product }) {
       </div>
 
       {/* Product Information */}
-      <div className="p-3 sm:p-4">
+      <div className="p-2 sm:p-4">
 
-        <h2 className="text-sm sm:text-lg font-semibold truncate">
+        {/* Product Name */}
+        <h2 className="
+          text-sm
+          sm:text-lg
+          font-semibold
+          truncate
+        ">
           {product.name}
         </h2>
 
-        <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
+        {/* Description */}
+        <p className="
+          text-xs
+          sm:text-sm
+          text-gray-500
+          mt-1
+          line-clamp-2
+        ">
           {product.description}
         </p>
 
         {/* Price + Stock */}
-        <div className="flex justify-between items-center mt-3">
+        <div className="
+          flex
+          flex-col
+          sm:flex-row
+          sm:justify-between
+          sm:items-center
+          mt-2
+          sm:mt-3
+          gap-1
+        ">
 
-          <p className="text-base sm:text-xl font-bold">
+          <p className="
+            text-base
+            sm:text-xl
+            font-bold
+          ">
             ₹{product.price}
           </p>
 
-          <span className="text-xs sm:text-sm text-green-600 font-semibold">
+          <span className="
+            text-[11px]
+            sm:text-sm
+            text-green-600
+            font-semibold
+          ">
             In Stock
           </span>
 
@@ -61,9 +90,10 @@ function ProductCard({ product }) {
           onClick={() => navigate(`/product/${product.id}`)}
           className="
             w-full
-            mt-3
+            mt-2
+            sm:mt-3
             border
-            border-black
+            border-gray-400
             py-1.5
             sm:py-2
             rounded-md
@@ -85,7 +115,8 @@ function ProductCard({ product }) {
           }}
           className="
             w-full
-            mt-2
+            mt-1.5
+            sm:mt-2
             bg-black
             text-white
             py-1.5
@@ -108,9 +139,10 @@ function ProductCard({ product }) {
           }}
           className="
             w-full
-            mt-2
+            mt-1.5
+            sm:mt-2
             border
-            border-pink-500
+            border-pink-400
             text-pink-500
             py-1.5
             sm:py-2
