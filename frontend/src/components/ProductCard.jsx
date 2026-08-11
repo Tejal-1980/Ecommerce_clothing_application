@@ -1,12 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
 
   const { addToCart } = useCart();
   const { addWishlist } = useWishlist();
+  const { user } = useAuth();
+
+  const handleAddToCart = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    addToCart(product);
+  };
+
+  const handleWishlist = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    addWishlist(product);
+  };
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
@@ -80,7 +100,7 @@ function ProductCard({ product }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            addToCart(product);
+            handleAddToCart();
           }}
           className="
             w-full
@@ -101,7 +121,7 @@ function ProductCard({ product }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            addWishlist(product);
+            handleWishlist();
           }}
           className="
             w-full
