@@ -3,7 +3,6 @@
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import ProductList from "./pages/ProductList";
@@ -29,21 +28,25 @@ function App() {
 
       <Routes>
 
-        {/* Home */}
+        {/* ================= HOME ================= */}
 
         <Route
           path="/"
           element={<ProductList />}
         />
 
-        {/* Product Details */}
+        {/* ================= PRODUCT DETAILS ================= */}
 
         <Route
           path="/product/:id"
-          element={<ProductDetails />}
+          element={
+            <ProtectedRoute>
+              <ProductDetails />
+            </ProtectedRoute>
+          }
         />
 
-        {/* Wishlist */}
+        {/* ================= WISHLIST ================= */}
 
         <Route
           path="/wishlist"
@@ -54,7 +57,7 @@ function App() {
           }
         />
 
-        {/* Cart */}
+        {/* ================= CART ================= */}
 
         <Route
           path="/cart"
@@ -65,7 +68,7 @@ function App() {
           }
         />
 
-        {/* Checkout */}
+        {/* ================= CHECKOUT ================= */}
 
         <Route
           path="/checkout"
@@ -76,7 +79,7 @@ function App() {
           }
         />
 
-        {/* Payment */}
+        {/* ================= PAYMENT ================= */}
 
         <Route
           path="/payment"
@@ -87,7 +90,7 @@ function App() {
           }
         />
 
-        {/* Success */}
+        {/* ================= SUCCESS ================= */}
 
         <Route
           path="/success"
@@ -98,7 +101,7 @@ function App() {
           }
         />
 
-        {/* Profile */}
+        {/* ================= PROFILE ================= */}
 
         <Route
           path="/profile"
@@ -109,7 +112,7 @@ function App() {
           }
         />
 
-        {/* Address */}
+        {/* ================= ADDRESS ================= */}
 
         <Route
           path="/address"
@@ -120,14 +123,14 @@ function App() {
           }
         />
 
-        {/* Login */}
+        {/* ================= LOGIN ================= */}
 
         <Route
           path="/login"
           element={<Login />}
         />
 
-        {/* Register */}
+        {/* ================= REGISTER ================= */}
 
         <Route
           path="/register"
