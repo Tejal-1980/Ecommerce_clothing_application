@@ -16,7 +16,6 @@ function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
 
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   const [zoomStyle, setZoomStyle] = useState({
@@ -41,12 +40,10 @@ function ProductDetails() {
       .then((res) => res.json())
       .then((products) => {
         setRelatedProducts(products);
-
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
-
         setLoading(false);
       });
   }, [BASEURL, id]);
@@ -56,7 +53,6 @@ function ProductDetails() {
       e.target.getBoundingClientRect();
 
     const x = ((e.clientX - left) / width) * 100;
-
     const y = ((e.clientY - top) / height) * 100;
 
     setZoomStyle({
@@ -74,7 +70,7 @@ function ProductDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-2xl">
+      <div className="min-h-screen flex justify-center items-center text-xl">
         Loading...
       </div>
     );
@@ -82,7 +78,7 @@ function ProductDetails() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-red-500 text-2xl">
+      <div className="min-h-screen flex justify-center items-center text-red-500 text-xl px-4 text-center">
         {error}
       </div>
     );
@@ -98,11 +94,13 @@ function ProductDetails() {
   return (
     <div className="bg-gray-100 min-h-screen">
 
-      <div className="max-w-7xl mx-auto py-10 px-6">
+      <div className="max-w-7xl mx-auto py-6 sm:py-10 px-3 sm:px-6">
 
-        <div className="grid md:grid-cols-2 gap-10 bg-white rounded-xl shadow-lg p-8">
+        {/* Product Section */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-10 bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
 
-          <div className="overflow-hidden rounded-lg">
+          {/* Product Image */}
+          <div className="overflow-hidden rounded-lg bg-gray-100">
 
             <img
               src={product.image}
@@ -110,110 +108,160 @@ function ProductDetails() {
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
               style={zoomStyle}
-              className="w-full h-[550px] object-cover transition duration-200"
+              className="
+                w-full
+                h-[380px]
+                sm:h-[450px]
+                lg:h-[550px]
+                object-cover
+                transition duration-200
+              "
             />
 
           </div>
 
-          <div>
+          {/* Product Information */}
+          <div className="pt-2">
 
-            <h1 className="text-5xl font-bold mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               {product.name}
             </h1>
 
-            <p className="text-gray-500 mb-5">
+            <p className="text-sm sm:text-base text-gray-500 mb-5 leading-6">
               {product.description}
             </p>
 
-            <div className="flex gap-4 items-center mb-4">
+            {/* Price + Stock */}
+            <div className="flex flex-wrap gap-3 items-center mb-4">
 
-              <span className="text-4xl font-bold">
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">
                 ₹{product.price}
               </span>
 
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                 In Stock
               </span>
 
             </div>
 
-            <div className="flex items-center gap-2 mb-6">
+            {/* Rating */}
+            <div className="flex gap-3 items-center mb-6">
 
-              <span className="text-yellow-500 text-xl">
+              <span className="text-yellow-500 text-lg sm:text-xl">
                 ★★★★☆
               </span>
 
-              <span className="text-gray-500">
+              <span className="text-gray-500 text-sm">
                 (4.5)
               </span>
 
             </div>
 
-            <div className="flex items-center gap-5 mb-8">
+            {/* Quantity */}
+            <div className="flex items-center gap-5 mb-6">
 
-              <button
-                onClick={() =>
-                  quantity > 1 &&
-                  setQuantity(quantity - 1)
-                }
-                className="border px-4 py-2 rounded"
-              >
-                -
-              </button>
-
-              <span className="text-xl">
-                {quantity}
+              <span className="font-medium">
+                Quantity:
               </span>
 
-              <button
-                onClick={() =>
-                  setQuantity(quantity + 1)
-                }
-                className="border px-4 py-2 rounded"
-              >
-                +
-              </button>
+              <div className="flex items-center border rounded-lg overflow-hidden">
+
+                <button
+                  onClick={() =>
+                    quantity > 1 &&
+                    setQuantity(quantity - 1)
+                  }
+                  className="px-4 py-2 hover:bg-gray-100"
+                >
+                  -
+                </button>
+
+                <span className="px-5 py-2 border-x">
+                  {quantity}
+                </span>
+
+                <button
+                  onClick={() =>
+                    setQuantity(quantity + 1)
+                  }
+                  className="px-4 py-2 hover:bg-gray-100"
+                >
+                  +
+                </button>
+
+              </div>
 
             </div>
 
-            <div className="flex gap-4">
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+
               <button
                 onClick={handleAddToCart}
-                className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition"
+                className="
+                  w-full
+                  sm:w-auto
+                  flex-1
+                  bg-black
+                  text-white
+                  px-6
+                  sm:px-8
+                  py-3
+                  rounded-lg
+                  hover:bg-gray-800
+                  transition
+                "
               >
                 Add To Cart
               </button>
 
               <button
                 onClick={() => addWishlist(product)}
-                className="border border-pink-500 text-pink-500 px-8 py-3 rounded-lg hover:bg-pink-500 hover:text-white transition"
+                className="
+                  w-full
+                  sm:w-auto
+                  flex-1
+                  border
+                  border-pink-500
+                  text-pink-500
+                  px-6
+                  sm:px-8
+                  py-3
+                  rounded-lg
+                  hover:bg-pink-500
+                  hover:text-white
+                  transition
+                "
               >
                 ❤️ Wishlist
               </button>
 
             </div>
 
-            <div className="mt-10 border-t pt-8">
+            {/* Product Details */}
+            <div className="mt-8 sm:mt-10 border-t pt-6 sm:pt-8">
 
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-3">
                 Product Details
               </h2>
 
-              <p className="text-gray-700 leading-8">
+              <p className="text-sm sm:text-base text-gray-700 leading-7">
                 {product.description}
               </p>
 
             </div>
 
-            <div className="mt-10 border-t pt-8">
+            {/* Reviews */}
+            <div className="mt-8 sm:mt-10 border-t pt-6 sm:pt-8">
 
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Customer Reviews
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
 
-                <div className="border rounded-lg p-4">
+                <div className="border rounded-lg p-3 sm:p-4">
+
                   <h3 className="font-semibold">
                     Rahul
                   </h3>
@@ -222,13 +270,15 @@ function ProductDetails() {
                     ★★★★★
                   </p>
 
-                  <p className="text-gray-600">
+                  <p className="text-sm text-gray-600 mt-1">
                     Excellent quality product.
                     Highly recommended.
                   </p>
+
                 </div>
 
-                <div className="border rounded-lg p-4">
+                <div className="border rounded-lg p-3 sm:p-4">
+
                   <h3 className="font-semibold">
                     Sneha
                   </h3>
@@ -237,9 +287,10 @@ function ProductDetails() {
                     ★★★★☆
                   </p>
 
-                  <p className="text-gray-600">
+                  <p className="text-sm text-gray-600 mt-1">
                     Worth the price.
                   </p>
+
                 </div>
 
               </div>
@@ -250,13 +301,14 @@ function ProductDetails() {
 
         </div>
 
-        <div className="mt-14">
+        {/* Related Products */}
+        <div className="mt-10 sm:mt-14">
 
-          <h2 className="text-3xl font-bold mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-8">
             Related Products
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
 
             {relatedProducts
               .filter(
@@ -269,26 +321,39 @@ function ProductDetails() {
 
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl shadow hover:shadow-xl transition overflow-hidden"
+                  className="
+                    bg-white
+                    rounded-lg
+                    sm:rounded-xl
+                    shadow
+                    hover:shadow-xl
+                    transition
+                    overflow-hidden
+                  "
                 >
 
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="h-56 w-full object-cover"
+                    className="
+                      h-40
+                      sm:h-56
+                      w-full
+                      object-cover
+                    "
                   />
 
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
 
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="font-semibold text-sm sm:text-lg truncate">
                       {item.name}
                     </h3>
 
-                    <p className="text-gray-500 line-clamp-2 mt-2">
+                    <p className="text-gray-500 text-xs sm:text-sm line-clamp-2 mt-1 sm:mt-2">
                       {item.description}
                     </p>
 
-                    <p className="font-bold text-xl mt-3">
+                    <p className="font-bold text-base sm:text-xl mt-2 sm:mt-3">
                       ₹{item.price}
                     </p>
 
