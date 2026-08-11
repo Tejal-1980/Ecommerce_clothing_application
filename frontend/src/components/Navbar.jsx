@@ -18,6 +18,15 @@ function Navbar() {
   const [search, setSearch] = useState(initialSearch);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const requireLogin = () => {
+    if (!user) {
+      navigate("/login");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleLogout = () => {
     logout();
     setMenuOpen(false);
@@ -26,6 +35,8 @@ function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+
+    if (!requireLogin()) return;
 
     const keyword = search.trim();
 
@@ -43,10 +54,22 @@ function Navbar() {
     navigate("/");
   };
 
+  const handleCart = () => {
+    if (requireLogin()) {
+      navigate("/cart");
+    }
+  };
+
+  const handleWishlist = () => {
+    if (requireLogin()) {
+      navigate("/wishlist");
+    }
+  };
+
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
 
-      {/* ================= TOP BAR ================= */}
+      {/* TOP BAR */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <div className="h-16 flex items-center justify-between gap-4">
@@ -75,7 +98,9 @@ function Navbar() {
           >
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={
+                user ? "Search products..." : "Login to search products"
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full border border-gray-300 rounded-l-lg px-4 py-2 outline-none focus:border-black"
@@ -106,29 +131,33 @@ function Navbar() {
               Home
             </Link>
 
-            <Link
-              to="/wishlist"
+            {/* Wishlist */}
+            <button
+              onClick={handleWishlist}
               className="relative"
             >
               ❤️
-              {wishlist.length > 0 && (
+
+              {user && wishlist.length > 0 && (
                 <span className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full text-xs px-2">
                   {wishlist.length}
                 </span>
               )}
-            </Link>
+            </button>
 
-            <Link
-              to="/cart"
+            {/* Cart */}
+            <button
+              onClick={handleCart}
               className="relative"
             >
               🛒
-              {cartItems.length > 0 && (
+
+              {user && cartItems.length > 0 && (
                 <span className="absolute -top-3 -right-3 bg-black text-white rounded-full text-xs px-2">
                   {cartItems.length}
                 </span>
               )}
-            </Link>
+            </button>
 
             {user && (
               <Link to="/profile">
@@ -161,29 +190,31 @@ function Navbar() {
           </div>
 
           {/* Mobile Cart */}
-          <Link
-            to="/cart"
+          <button
+            onClick={handleCart}
             className="md:hidden relative text-2xl"
           >
             🛒
 
-            {cartItems.length > 0 && (
+            {user && cartItems.length > 0 && (
               <span className="absolute -top-2 -right-2 bg-black text-white rounded-full text-xs px-1.5">
                 {cartItems.length}
               </span>
             )}
-          </Link>
+          </button>
 
         </div>
 
-        {/* ================= MOBILE SEARCH ================= */}
+        {/* MOBILE SEARCH */}
         <form
           onSubmit={handleSearch}
           className="md:hidden flex pb-3"
         >
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder={
+              user ? "Search products..." : "Login to search products"
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-gray-300 rounded-l-lg px-3 py-2 outline-none focus:border-black text-sm"
@@ -209,7 +240,7 @@ function Navbar() {
 
       </div>
 
-      {/* ================= MOBILE MENU ================= */}
+      {/* MOBILE MENU */}
       {menuOpen && (
         <div className="md:hidden border-t bg-white">
 
@@ -223,19 +254,31 @@ function Navbar() {
               🏠 Home
             </Link>
 
-            <Link
-              to="/wishlist"
-              onClick={() => setMenuOpen(false)}
-              className="flex justify-between"
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                handleWishlist();
+              }}
+              className="flex justify-between text-left"
             >
               <span>❤️ Wishlist</span>
 
-              {wishlist.length > 0 && (
+              {user && wishlist.length > 0 && (
                 <span className="bg-red-500 text-white rounded-full text-xs px-2 py-1">
                   {wishlist.length}
                 </span>
               )}
-            </Link>
+            </button>
+
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                handleCart();
+              }}
+              className="text-left"
+            >
+              🛒 Cart
+            </button>
 
             {user && (
               <Link

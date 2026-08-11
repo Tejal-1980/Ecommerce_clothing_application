@@ -6,24 +6,37 @@ import { useAuth } from "../context/AuthContext";
 function ProductCard({ product }) {
   const navigate = useNavigate();
 
+  const { user } = useAuth();
   const { addToCart } = useCart();
   const { addWishlist } = useWishlist();
-  const { user } = useAuth();
 
-  const handleAddToCart = () => {
+  const requireLogin = () => {
     if (!user) {
       navigate("/login");
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handleProductClick = () => {
+    if (requireLogin()) {
+      navigate(`/product/${product.id}`);
+    }
+  };
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+
+    if (!requireLogin()) return;
 
     addToCart(product);
   };
 
-  const handleWishlist = () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+  const handleWishlist = (e) => {
+    e.stopPropagation();
+
+    if (!requireLogin()) return;
 
     addWishlist(product);
   };
@@ -33,7 +46,7 @@ function ProductCard({ product }) {
 
       {/* Product Image */}
       <div
-        onClick={() => navigate(`/product/${product.id}`)}
+        onClick={handleProductClick}
         className="cursor-pointer overflow-hidden"
       >
         <img
@@ -80,7 +93,7 @@ function ProductCard({ product }) {
 
         {/* View Details */}
         <button
-          onClick={() => navigate(`/product/${product.id}`)}
+          onClick={handleProductClick}
           className="
             w-full
             mt-2 sm:mt-3
@@ -98,10 +111,7 @@ function ProductCard({ product }) {
 
         {/* Add To Cart */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAddToCart();
-          }}
+          onClick={handleAddToCart}
           className="
             w-full
             mt-1.5 sm:mt-2
@@ -119,10 +129,7 @@ function ProductCard({ product }) {
 
         {/* Wishlist */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleWishlist();
-          }}
+          onClick={handleWishlist}
           className="
             w-full
             mt-1.5 sm:mt-2
