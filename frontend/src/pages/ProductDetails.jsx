@@ -1,27 +1,36 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
 
+  const { user } = useAuth();
   const { addToCart } = useCart();
-  const { addWishlist } = useWishlist();
+  const {
+    wishlist,
+    addWishlist,
+    removeWishlist,
+  } = useWishlist();
 
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [zoomStyle, setZoomStyle] = useState({
-    transformOrigin: "center",
-    transform: "scale(1)",
-  });
+  const isWishlisted =
+    product &&
+    wishlist.some((item) => item.id === product.id);
 
   useEffect(() => {
     fetch(`${BASEURL}/api/products/${id}/`)
@@ -48,24 +57,44 @@ function ProductDetails() {
       });
   }, [BASEURL, id]);
 
-  const handleMouseMove = (e) => {
-    const { left, top, width, height } =
-      e.target.getBoundingClientRect();
+  const requireLogin = () => {
+    if (!user) {
+      navigate("/login");
+      return false;
+    }
 
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-
-    setZoomStyle({
-      transformOrigin: `${x}% ${y}%`,
-      transform: "scale(2)",
-    });
+    return true;
   };
 
-  const handleMouseLeave = () => {
-    setZoomStyle({
-      transformOrigin: "center",
-      transform: "scale(1)",
+  const handleAddToCart = () => {
+    if (!requireLogin()) return;
+
+    if (!selectedSize) {
+      alert(
+        "Please select a size: Small, Medium, or Large."
+      );
+      return;
+    }
+
+    addToCart({
+      ...product,
+      size: selectedSize,
+      quantity,
     });
+
+    alert(
+      `${product.name} added to cart - Size: ${selectedSize}`
+    );
+  };
+
+  const handleWishlist = () => {
+    if (!requireLogin()) return;
+
+    if (isWishlisted) {
+      removeWishlist(product.id);
+    } else {
+      addWishlist(product);
+    }
   };
 
   if (loading) {
@@ -84,13 +113,6 @@ function ProductDetails() {
     );
   }
 
-  const handleAddToCart = () => {
-    addToCart({
-      ...product,
-      quantity,
-    });
-  };
-
   return (
     <div className="bg-gray-100 min-h-screen">
 
@@ -100,21 +122,16 @@ function ProductDetails() {
         <div className="grid md:grid-cols-2 gap-6 lg:gap-10 bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
 
           {/* Product Image */}
-          <div className="overflow-hidden rounded-lg bg-gray-100">
+          <div className="rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
 
             <img
               src={product.image}
               alt={product.name}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              style={zoomStyle}
               className="
+                block
                 w-full
-                h-[380px]
-                sm:h-[450px]
-                lg:h-[550px]
-                object-cover
-                transition duration-200
+                h-auto
+                object-contain
               "
             />
 
@@ -123,7 +140,7 @@ function ProductDetails() {
           {/* Product Information */}
           <div className="pt-2">
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-3">
               {product.name}
             </h1>
 
@@ -131,10 +148,10 @@ function ProductDetails() {
               {product.description}
             </p>
 
-            {/* Price + Stock */}
-            <div className="flex flex-wrap gap-3 items-center mb-4">
+            {/* Price */}
+            <div className="flex flex-wrap gap-3 items-center mb-5">
 
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+              <span className="text-2xl sm:text-3xl font-bold">
                 ₹{product.price}
               </span>
 
@@ -147,13 +164,59 @@ function ProductDetails() {
             {/* Rating */}
             <div className="flex gap-3 items-center mb-6">
 
-              <span className="text-yellow-500 text-lg sm:text-xl">
+              <span className="text-yellow-500 text-lg">
                 ★★★★☆
               </span>
 
               <span className="text-gray-500 text-sm">
                 (4.5)
               </span>
+
+            </div>
+
+            {/* SIZE */}
+            <div className="mb-6">
+
+              <p className="font-semibold mb-3">
+                Select Size
+              </p>
+
+              <div className="flex gap-3">
+
+                {[
+                  { value: "S", label: "Small" },
+                  { value: "M", label: "Medium" },
+                  { value: "L", label: "Large" },
+                ].map((size) => (
+                  <button
+                    key={size.value}
+                    type="button"
+                    onClick={() =>
+                      setSelectedSize(size.value)
+                    }
+                    className={`
+                      border
+                      px-5
+                      py-3
+                      rounded-lg
+                      transition
+                      ${selectedSize === size.value
+                        ? "bg-black text-white border-black"
+                        : "border-gray-400 hover:border-black"
+                      }
+                    `}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+
+              </div>
+
+              {selectedSize && (
+                <p className="text-green-600 text-sm mt-2">
+                  Selected size: {selectedSize}
+                </p>
+              )}
 
             </div>
 
@@ -200,12 +263,9 @@ function ProductDetails() {
                 onClick={handleAddToCart}
                 className="
                   w-full
-                  sm:w-auto
-                  flex-1
                   bg-black
                   text-white
                   px-6
-                  sm:px-8
                   py-3
                   rounded-lg
                   hover:bg-gray-800
@@ -216,30 +276,29 @@ function ProductDetails() {
               </button>
 
               <button
-                onClick={() => addWishlist(product)}
-                className="
+                onClick={handleWishlist}
+                className={`
                   w-full
-                  sm:w-auto
-                  flex-1
                   border
-                  border-pink-500
-                  text-pink-500
                   px-6
-                  sm:px-8
                   py-3
                   rounded-lg
-                  hover:bg-pink-500
-                  hover:text-white
                   transition
-                "
+                  ${isWishlisted
+                    ? "bg-pink-500 text-white border-pink-500"
+                    : "border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white"
+                  }
+                `}
               >
-                ❤️ Wishlist
+                {isWishlisted
+                  ? "❤️ Wishlisted"
+                  : "♡ Wishlist"}
               </button>
 
             </div>
 
             {/* Product Details */}
-            <div className="mt-8 sm:mt-10 border-t pt-6 sm:pt-8">
+            <div className="mt-8 border-t pt-6">
 
               <h2 className="text-xl sm:text-2xl font-semibold mb-3">
                 Product Details
@@ -252,7 +311,7 @@ function ProductDetails() {
             </div>
 
             {/* Reviews */}
-            <div className="mt-8 sm:mt-10 border-t pt-6 sm:pt-8">
+            <div className="mt-8 border-t pt-6">
 
               <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Customer Reviews
@@ -260,8 +319,7 @@ function ProductDetails() {
 
               <div className="space-y-3">
 
-                <div className="border rounded-lg p-3 sm:p-4">
-
+                <div className="border rounded-lg p-4">
                   <h3 className="font-semibold">
                     Rahul
                   </h3>
@@ -274,11 +332,9 @@ function ProductDetails() {
                     Excellent quality product.
                     Highly recommended.
                   </p>
-
                 </div>
 
-                <div className="border rounded-lg p-3 sm:p-4">
-
+                <div className="border rounded-lg p-4">
                   <h3 className="font-semibold">
                     Sneha
                   </h3>
@@ -290,7 +346,6 @@ function ProductDetails() {
                   <p className="text-sm text-gray-600 mt-1">
                     Worth the price.
                   </p>
-
                 </div>
 
               </div>
@@ -304,17 +359,18 @@ function ProductDetails() {
         {/* Related Products */}
         <div className="mt-10 sm:mt-14">
 
-          <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-5">
             Related Products
           </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
 
             {relatedProducts
               .filter(
                 (item) =>
                   item.id !== product.id &&
-                  item.category.id === product.category.id
+                  item.category?.id ===
+                  product.category?.id
               )
               .slice(0, 4)
               .map((item) => (
@@ -324,7 +380,6 @@ function ProductDetails() {
                   className="
                     bg-white
                     rounded-lg
-                    sm:rounded-xl
                     shadow
                     hover:shadow-xl
                     transition
@@ -332,28 +387,32 @@ function ProductDetails() {
                   "
                 >
 
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="
-                      h-40
-                      sm:h-56
-                      w-full
-                      object-cover
-                    "
-                  />
+                  <div className="bg-gray-100 flex items-center justify-center overflow-hidden">
+
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="
+                        block
+                        w-full
+                        h-auto
+                        object-contain
+                      "
+                    />
+
+                  </div>
 
                   <div className="p-3 sm:p-4">
 
-                    <h3 className="font-semibold text-sm sm:text-lg truncate">
+                    <h3 className="font-semibold text-sm sm:text-lg">
                       {item.name}
                     </h3>
 
-                    <p className="text-gray-500 text-xs sm:text-sm line-clamp-2 mt-1 sm:mt-2">
+                    <p className="text-gray-500 text-xs sm:text-sm line-clamp-2 mt-1">
                       {item.description}
                     </p>
 
-                    <p className="font-bold text-base sm:text-xl mt-2 sm:mt-3">
+                    <p className="font-bold text-base sm:text-xl mt-2">
                       ₹{item.price}
                     </p>
 

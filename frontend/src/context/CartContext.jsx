@@ -14,74 +14,41 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const { user } = useAuth();
 
-  // Your login response contains user_id
   const userId = user
-    ? user.id || user.user_id || user.username
+    ? typeof user === "string"
+      ? user
+      : user.id || user.user_id || user.username
     : null;
 
-  // Every user gets a separate cart
   const storageKey = userId ? `cart_${userId}` : null;
 
-  /*
-   * Load cart only for the current user.
-   * If nobody is logged in, cart is empty.
-   */
-  const [cartItems, setCartItems] = useState(() => {
+  const [cartItems, setCartItems] = useState([]);
+
+  // Load cart whenever user changes
+  useEffect(() => {
     if (!storageKey) {
-      return [];
+      setCartItems([]);
+      return;
     }
 
     const savedCart = localStorage.getItem(storageKey);
 
     if (!savedCart) {
-      return [];
+      setCartItems([]);
+      return;
     }
 
     try {
-      return JSON.parse(savedCart);
+      setCartItems(JSON.parse(savedCart));
     } catch (error) {
       console.error("Invalid cart data:", error);
-      return [];
+      setCartItems([]);
     }
-  });
-
-  /*
-   * When the user changes, we need to load that user's cart.
-   *
-   * We use a timeout so that we're not calling setState
-   * synchronously inside the effect.
-   */
-  useEffect(() => {
-    if (!storageKey) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      const savedCart = localStorage.getItem(storageKey);
-
-      if (!savedCart) {
-        setCartItems([]);
-        return;
-      }
-
-      try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error("Invalid cart data:", error);
-        setCartItems([]);
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
   }, [storageKey]);
 
-  /*
-   * Save current user's cart.
-   */
+  // Save cart
   useEffect(() => {
-    if (!storageKey) {
-      return;
-    }
+    if (!storageKey) return;
 
     localStorage.setItem(
       storageKey,
@@ -90,18 +57,24 @@ export function CartProvider({ children }) {
   }, [cartItems, storageKey]);
 
   const addToCart = (product) => {
-    if (!userId) {
+    if (!userId) return;
+
+    if (!product.size) {
+      alert("Please select a size.");
       return;
     }
 
     setCartItems((prev) => {
       const existing = prev.find(
-        (item) => item.id === product.id
+        (item) =>
+          item.id === product.id &&
+          item.size === product.size
       );
 
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id
+          item.id === product.id &&
+            item.size === product.size
             ? {
               ...item,
               quantity: item.quantity + 1,
@@ -114,16 +87,16 @@ export function CartProvider({ children }) {
         ...prev,
         {
           ...product,
-          quantity: 1,
+          quantity: product.quantity || 1,
         },
       ];
     });
   };
 
-  const increaseQuantity = (id) => {
+  const increaseQuantity = (id, size) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id
+        item.id === id && item.size === size
           ? {
             ...item,
             quantity: item.quantity + 1,
@@ -133,11 +106,11 @@ export function CartProvider({ children }) {
     );
   };
 
-  const decreaseQuantity = (id) => {
+  const decreaseQuantity = (id, size) => {
     setCartItems((prev) =>
       prev
         .map((item) =>
-          item.id === id
+          item.id === id && item.size === size
             ? {
               ...item,
               quantity: item.quantity - 1,
@@ -148,9 +121,12 @@ export function CartProvider({ children }) {
     );
   };
 
-  const removeFromCart = (id) => {
+  const removeFromCart = (id, size) => {
     setCartItems((prev) =>
-      prev.filter((item) => item.id !== id)
+      prev.filter(
+        (item) =>
+          !(item.id === id && item.size === size)
+      )
     );
   };
 

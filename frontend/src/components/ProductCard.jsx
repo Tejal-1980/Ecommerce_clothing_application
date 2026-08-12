@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
@@ -8,7 +10,13 @@ function ProductCard({ product }) {
 
   const { user } = useAuth();
   const { addToCart } = useCart();
-  const { addWishlist } = useWishlist();
+  const { wishlist, addWishlist, removeWishlist } = useWishlist();
+
+  const [selectedSize, setSelectedSize] = useState("");
+
+  const isWishlisted = wishlist.some(
+    (item) => item.id === product.id
+  );
 
   const requireLogin = () => {
     if (!user) {
@@ -30,7 +38,18 @@ function ProductCard({ product }) {
 
     if (!requireLogin()) return;
 
-    addToCart(product);
+    if (!selectedSize) {
+      alert("Please select a size: Small, Medium, or Large.");
+      return;
+    }
+
+    addToCart({
+      ...product,
+      size: selectedSize,
+      quantity: 1,
+    });
+
+    alert(`Added to cart - Size: ${selectedSize}`);
   };
 
   const handleWishlist = (e) => {
@@ -38,7 +57,11 @@ function ProductCard({ product }) {
 
     if (!requireLogin()) return;
 
-    addWishlist(product);
+    if (isWishlisted) {
+      removeWishlist(product.id);
+    } else {
+      addWishlist(product);
+    }
   };
 
   return (
@@ -50,8 +73,10 @@ function ProductCard({ product }) {
         className="
           cursor-pointer
           w-full
-          aspect-[4/5]
           bg-gray-100
+          flex
+          items-center
+          justify-center
           overflow-hidden
         "
       >
@@ -60,9 +85,10 @@ function ProductCard({ product }) {
           alt={product.name}
           loading="lazy"
           className="
+            block
             w-full
-            h-full
-            object-cover
+            h-auto
+            object-contain
             transition-transform
             duration-300
             hover:scale-105
@@ -73,31 +99,67 @@ function ProductCard({ product }) {
       {/* Product Information */}
       <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
 
-        {/* Product Name */}
-        <h2 className="text-sm sm:text-base md:text-lg font-semibold truncate">
+        <h2 className="text-sm sm:text-base md:text-lg font-semibold">
           {product.name}
         </h2>
 
-        {/* Description */}
         <p className="text-[11px] sm:text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
           {product.description}
         </p>
 
-        {/* Price + Stock */}
         <div className="flex justify-between items-center mt-2">
           <p className="text-sm sm:text-base md:text-xl font-bold">
             ₹{product.price}
           </p>
 
-          <span className="hidden sm:block text-[10px] md:text-sm text-green-600 font-semibold">
+          <span className="text-[10px] sm:text-xs md:text-sm text-green-600 font-semibold">
             In Stock
           </span>
         </div>
 
-        {/* Buttons */}
-        <div className="mt-auto pt-2">
+        {/* SIZE */}
+        <div className="mt-3">
+          <p className="text-xs sm:text-sm font-semibold mb-2">
+            Select Size
+          </p>
 
-          {/* View Details */}
+          <div className="grid grid-cols-3 gap-1.5">
+            {["S", "M", "L"].map((size) => (
+              <button
+                key={size}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedSize(size);
+                }}
+                className={`
+                  border
+                  py-1.5
+                  rounded
+                  text-xs
+                  sm:text-sm
+                  transition
+                  ${selectedSize === size
+                    ? "bg-black text-white border-black"
+                    : "border-gray-400 hover:border-black"
+                  }
+                `}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+
+          {selectedSize && (
+            <p className="text-xs text-green-600 mt-1">
+              Size {selectedSize} selected
+            </p>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-auto pt-3">
+
           <button
             onClick={handleProductClick}
             className="
@@ -118,7 +180,6 @@ function ProductCard({ product }) {
             View Details
           </button>
 
-          {/* Add To Cart */}
           <button
             onClick={handleAddToCart}
             className="
@@ -139,27 +200,26 @@ function ProductCard({ product }) {
             Add To Cart
           </button>
 
-          {/* Wishlist */}
           <button
             onClick={handleWishlist}
-            className="
+            className={`
               w-full
               mt-1.5
               border
-              border-pink-400
-              text-pink-500
               py-1.5
               sm:py-2
               rounded-md
               text-[11px]
               sm:text-xs
               md:text-sm
-              hover:bg-pink-500
-              hover:text-white
               transition
-            "
+              ${isWishlisted
+                ? "bg-pink-500 text-white border-pink-500"
+                : "border-pink-400 text-pink-500 hover:bg-pink-500 hover:text-white"
+              }
+            `}
           >
-            ❤️ Wishlist
+            {isWishlisted ? "❤️ Wishlisted" : "♡ Wishlist"}
           </button>
 
         </div>

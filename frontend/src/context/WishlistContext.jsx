@@ -1,6 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
 import { useAuth } from "./AuthContext";
 
 const WishlistContext = createContext();
@@ -8,95 +14,75 @@ const WishlistContext = createContext();
 export function WishlistProvider({ children }) {
   const { user } = useAuth();
 
-  // Get current user's ID
   const userId = user
-    ? user.id || user.user_id || user.username
+    ? typeof user === "string"
+      ? user
+      : user.id || user.user_id || user.username
     : null;
 
-  // Every user gets a separate wishlist
   const storageKey = userId
     ? `wishlist_${userId}`
     : null;
 
-  // Used only to make React re-render after localStorage changes
-  const [, setVersion] = useState(0);
+  const [wishlist, setWishlist] = useState([]);
 
-  /*
-   * Get wishlist for the CURRENT user.
-   *
-   * If nobody is logged in:
-   * wishlist = []
-   *
-   * If a new user logs in:
-   * their wishlist is automatically []
-   * unless they already had one saved.
-   */
-  const wishlist = useMemo(() => {
+  // Load wishlist when user changes
+  useEffect(() => {
     if (!storageKey) {
-      return [];
+      setWishlist([]);
+      return;
     }
 
-    const savedWishlist = localStorage.getItem(storageKey);
+    const savedWishlist =
+      localStorage.getItem(storageKey);
 
     if (!savedWishlist) {
-      return [];
+      setWishlist([]);
+      return;
     }
 
     try {
-      return JSON.parse(savedWishlist);
+      setWishlist(JSON.parse(savedWishlist));
     } catch (error) {
-      console.error("Invalid wishlist data:", error);
-      return [];
+      console.error(
+        "Invalid wishlist data:",
+        error
+      );
+
+      setWishlist([]);
     }
-  }, [storageKey, setVersion]);
+  }, [storageKey]);
 
-  // Add product to wishlist
-  const addWishlist = (product) => {
-    if (!storageKey) {
-      return;
-    }
-
-    const currentWishlist = wishlist;
-
-    // Don't add duplicate product
-    const alreadyExists = currentWishlist.some(
-      (item) => item.id === product.id
-    );
-
-    if (alreadyExists) {
-      return;
-    }
-
-    const updatedWishlist = [
-      ...currentWishlist,
-      product,
-    ];
+  // Save wishlist
+  useEffect(() => {
+    if (!storageKey) return;
 
     localStorage.setItem(
       storageKey,
-      JSON.stringify(updatedWishlist)
+      JSON.stringify(wishlist)
     );
+  }, [wishlist, storageKey]);
 
-    // Force component update
-    setVersion((version) => version + 1);
+  const addWishlist = (product) => {
+    if (!storageKey) return;
+
+    setWishlist((prev) => {
+      const exists = prev.some(
+        (item) => item.id === product.id
+      );
+
+      if (exists) {
+        return prev;
+      }
+
+      return [...prev, product];
+    });
   };
 
-  // Remove product from wishlist
   const removeWishlist = (id) => {
-    if (!storageKey) {
-      return;
-    }
-
-    const updatedWishlist = wishlist.filter(
-      (item) => item.id !== id
+    setWishlist((prev) =>
+      prev.filter((item) => item.id !== id)
     );
-
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify(updatedWishlist)
-    );
-
-    setVersion((version) => version + 1);
   };
 
   return (
