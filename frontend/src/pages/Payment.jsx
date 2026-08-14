@@ -1,8 +1,7 @@
 
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-
+import { useCart } from "../context/useCart";
 function Payment() {
   const navigate = useNavigate();
   const location = useLocation();

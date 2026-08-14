@@ -1,12 +1,8 @@
 import { useState } from "react";
-
 import { useAuth } from "./useAuth";
+import { WishlistContext } from "./wishlist-context";
 
-import { WishlistContext } from "./WishlistContext";
-
-export function WishlistProvider({
-  children,
-}) {
+export function WishlistProvider({ children }) {
   const { user } = useAuth();
 
   const userId =
@@ -26,9 +22,7 @@ export function WishlistProvider({
 
     try {
       const savedWishlist =
-        localStorage.getItem(
-          storageKey
-        );
+        localStorage.getItem(storageKey);
 
       if (!savedWishlist) {
         return [];
@@ -37,9 +31,7 @@ export function WishlistProvider({
       const parsedWishlist =
         JSON.parse(savedWishlist);
 
-      return Array.isArray(
-        parsedWishlist
-      )
+      return Array.isArray(parsedWishlist)
         ? parsedWishlist
         : [];
     } catch (error) {
@@ -87,11 +79,9 @@ function WishlistProviderContent({
       return;
     }
 
-    const alreadyExists =
-      wishlist.some(
-        (item) =>
-          item.id === product.id
-      );
+    const alreadyExists = wishlist.some(
+      (item) => item.id === product.id
+    );
 
     if (alreadyExists) {
       return;
@@ -109,8 +99,7 @@ function WishlistProviderContent({
   const removeWishlist = (id) => {
     const updatedWishlist =
       wishlist.filter(
-        (item) =>
-          item.id !== id
+        (item) => item.id !== id
       );
 
     setWishlist(updatedWishlist);
@@ -121,9 +110,7 @@ function WishlistProviderContent({
     setWishlist([]);
 
     if (storageKey) {
-      localStorage.removeItem(
-        storageKey
-      );
+      localStorage.removeItem(storageKey);
     }
   };
 
