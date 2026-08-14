@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -27,15 +25,10 @@ function App() {
       <Navbar />
 
       <Routes>
-
-        {/* ================= HOME ================= */}
-
         <Route
           path="/"
           element={<ProductList />}
         />
-
-        {/* ================= PRODUCT DETAILS ================= */}
 
         <Route
           path="/product/:id"
@@ -46,8 +39,6 @@ function App() {
           }
         />
 
-        {/* ================= WISHLIST ================= */}
-
         <Route
           path="/wishlist"
           element={
@@ -56,8 +47,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ================= CART ================= */}
 
         <Route
           path="/cart"
@@ -68,8 +57,6 @@ function App() {
           }
         />
 
-        {/* ================= CHECKOUT ================= */}
-
         <Route
           path="/checkout"
           element={
@@ -78,8 +65,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ================= PAYMENT ================= */}
 
         <Route
           path="/payment"
@@ -90,8 +75,6 @@ function App() {
           }
         />
 
-        {/* ================= SUCCESS ================= */}
-
         <Route
           path="/success"
           element={
@@ -100,8 +83,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ================= PROFILE ================= */}
 
         <Route
           path="/profile"
@@ -112,8 +93,6 @@ function App() {
           }
         />
 
-        {/* ================= ADDRESS ================= */}
-
         <Route
           path="/address"
           element={
@@ -123,20 +102,15 @@ function App() {
           }
         />
 
-        {/* ================= LOGIN ================= */}
-
         <Route
           path="/login"
           element={<Login />}
         />
 
-        {/* ================= REGISTER ================= */}
-
         <Route
           path="/register"
           element={<Register />}
         />
-
       </Routes>
     </>
   );

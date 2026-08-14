@@ -1,9 +1,13 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
-import { useAuth } from "../context/AuthContext";
-import { useWishlist } from "../context/WishlistContext";
-import { useCart } from "../context/CartContext";
+import { useState } from "react";
+import { useAuth } from "../context/useAuth";
+import { useWishlist } from "../context/useWishlist";
+import { useCart } from "../context/useCart";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -13,10 +17,14 @@ function Navbar() {
   const { wishlist } = useWishlist();
   const { cartItems } = useCart();
 
-  const initialSearch = searchParams.get("search") || "";
+  const initialSearch =
+    searchParams.get("search") || "";
 
-  const [search, setSearch] = useState(initialSearch);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] =
+    useState(initialSearch);
+
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
   const requireLogin = () => {
     if (!user) {
@@ -36,7 +44,9 @@ function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    if (!requireLogin()) return;
+    if (!requireLogin()) {
+      return;
+    }
 
     const keyword = search.trim();
 
@@ -45,7 +55,10 @@ function Navbar() {
       return;
     }
 
-    navigate(`/?search=${encodeURIComponent(keyword)}`);
+    navigate(
+      `/?search=${encodeURIComponent(keyword)}`
+    );
+
     setMenuOpen(false);
   };
 
@@ -68,15 +81,15 @@ function Navbar() {
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
-
-      {/* TOP BAR */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <div className="h-16 flex items-center justify-between gap-4">
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() =>
+              setMenuOpen(!menuOpen)
+            }
             className="md:hidden text-2xl"
             aria-label="Open menu"
           >
@@ -99,10 +112,14 @@ function Navbar() {
             <input
               type="text"
               placeholder={
-                user ? "Search products..." : "Login to search products"
+                user
+                  ? "Search products..."
+                  : "Login to search products"
               }
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               className="w-full border border-gray-300 rounded-l-lg px-4 py-2 outline-none focus:border-black"
             />
 
@@ -127,7 +144,10 @@ function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-5">
 
-            <Link to="/" className="hover:font-semibold">
+            <Link
+              to="/"
+              className="hover:font-semibold"
+            >
               Home
             </Link>
 
@@ -138,11 +158,12 @@ function Navbar() {
             >
               ❤️
 
-              {user && wishlist.length > 0 && (
-                <span className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full text-xs px-2">
-                  {wishlist.length}
-                </span>
-              )}
+              {user &&
+                wishlist.length > 0 && (
+                  <span className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full text-xs px-2">
+                    {wishlist.length}
+                  </span>
+                )}
             </button>
 
             {/* Cart */}
@@ -152,11 +173,12 @@ function Navbar() {
             >
               🛒
 
-              {user && cartItems.length > 0 && (
-                <span className="absolute -top-3 -right-3 bg-black text-white rounded-full text-xs px-2">
-                  {cartItems.length}
-                </span>
-              )}
+              {user &&
+                cartItems.length > 0 && (
+                  <span className="absolute -top-3 -right-3 bg-black text-white rounded-full text-xs px-2">
+                    {cartItems.length}
+                  </span>
+                )}
             </button>
 
             {user && (
@@ -186,7 +208,6 @@ function Navbar() {
                 </Link>
               </>
             )}
-
           </div>
 
           {/* Mobile Cart */}
@@ -196,16 +217,16 @@ function Navbar() {
           >
             🛒
 
-            {user && cartItems.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-black text-white rounded-full text-xs px-1.5">
-                {cartItems.length}
-              </span>
-            )}
+            {user &&
+              cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-black text-white rounded-full text-xs px-1.5">
+                  {cartItems.length}
+                </span>
+              )}
           </button>
-
         </div>
 
-        {/* MOBILE SEARCH */}
+        {/* Mobile Search */}
         <form
           onSubmit={handleSearch}
           className="md:hidden flex pb-3"
@@ -213,10 +234,14 @@ function Navbar() {
           <input
             type="text"
             placeholder={
-              user ? "Search products..." : "Login to search products"
+              user
+                ? "Search products..."
+                : "Login to search products"
             }
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
             className="w-full border border-gray-300 rounded-l-lg px-3 py-2 outline-none focus:border-black text-sm"
           />
 
@@ -237,18 +262,18 @@ function Navbar() {
             🔍
           </button>
         </form>
-
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden border-t bg-white">
-
           <div className="px-5 py-4 flex flex-col gap-4">
 
             <Link
               to="/"
-              onClick={() => setMenuOpen(false)}
+              onClick={() =>
+                setMenuOpen(false)
+              }
               className="font-medium"
             >
               🏠 Home
@@ -263,11 +288,12 @@ function Navbar() {
             >
               <span>❤️ Wishlist</span>
 
-              {user && wishlist.length > 0 && (
-                <span className="bg-red-500 text-white rounded-full text-xs px-2 py-1">
-                  {wishlist.length}
-                </span>
-              )}
+              {user &&
+                wishlist.length > 0 && (
+                  <span className="bg-red-500 text-white rounded-full text-xs px-2 py-1">
+                    {wishlist.length}
+                  </span>
+                )}
             </button>
 
             <button
@@ -283,7 +309,9 @@ function Navbar() {
             {user && (
               <Link
                 to="/profile"
-                onClick={() => setMenuOpen(false)}
+                onClick={() =>
+                  setMenuOpen(false)
+                }
               >
                 👤 Profile
               </Link>
@@ -300,26 +328,27 @@ function Navbar() {
               <>
                 <Link
                   to="/login"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() =>
+                    setMenuOpen(false)
+                  }
                 >
                   Login
                 </Link>
 
                 <Link
                   to="/register"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() =>
+                    setMenuOpen(false)
+                  }
                   className="bg-black text-white text-center py-2 rounded-lg"
                 >
                   Register
                 </Link>
               </>
             )}
-
           </div>
-
         </div>
       )}
-
     </nav>
   );
 }
