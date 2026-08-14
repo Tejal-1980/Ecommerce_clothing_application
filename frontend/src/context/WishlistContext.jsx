@@ -5,11 +5,8 @@ import { WishlistContext } from "./wishlist-context";
 export function WishlistProvider({ children }) {
   const { user } = useAuth();
 
-  const userId =
-    user?.id ||
-    user?.user_id ||
-    user?.username ||
-    null;
+  // Your AuthContext stores user as a username string
+  const userId = user || null;
 
   const storageKey = userId
     ? `wishlist_${userId}`
