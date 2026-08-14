@@ -1,12 +1,7 @@
-import {
-  createContext,
-  useState,
-} from "react";
+import { useState } from "react";
 
 import { useAuth } from "./useAuth";
-
-export const WishlistContext =
-  createContext(null);
+import { WishlistContext } from "./wishlist-context";
 
 export function WishlistProvider({
   children,

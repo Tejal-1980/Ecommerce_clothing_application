@@ -1,11 +1,7 @@
-import {
-  createContext,
-  useState,
-} from "react";
+import { useState } from "react";
 
 import { useAuth } from "./useAuth";
-
-export const CartContext = createContext(null);
+import { CartContext } from "./cart-context";
 
 export function CartProvider({ children }) {
   const { user } = useAuth();
@@ -33,8 +29,7 @@ export function CartProvider({ children }) {
         return [];
       }
 
-      const parsedCart =
-        JSON.parse(savedCart);
+      const parsedCart = JSON.parse(savedCart);
 
       return Array.isArray(parsedCart)
         ? parsedCart
@@ -79,8 +74,12 @@ function CartProviderContent({
     );
   };
 
-  // product + selected size
-  const addToCart = (product, size) => {
+  // Add product with selected size and quantity
+  const addToCart = (
+    product,
+    size,
+    quantity = 1
+  ) => {
     if (!storageKey) {
       return;
     }
@@ -99,8 +98,6 @@ function CartProviderContent({
     let updatedCart;
 
     if (existingItem) {
-      // Same product + same size
-      // Increase quantity
       updatedCart = cartItems.map(
         (item) =>
           item.id === product.id &&
@@ -108,19 +105,17 @@ function CartProviderContent({
             ? {
               ...item,
               quantity:
-                item.quantity + 1,
+                item.quantity + quantity,
             }
             : item
       );
     } else {
-      // Same product but different size
-      // Create separate cart item
       updatedCart = [
         ...cartItems,
         {
           ...product,
           size,
-          quantity: 1,
+          quantity,
         },
       ];
     }
@@ -166,7 +161,8 @@ function CartProviderContent({
             : item
         )
         .filter(
-          (item) => item.quantity > 0
+          (item) =>
+            item.quantity > 0
         );
 
     setCartItems(updatedCart);

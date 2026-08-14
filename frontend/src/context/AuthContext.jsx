@@ -1,17 +1,9 @@
-import {
-  createContext,
-  useState,
-} from "react";
+import { useState } from "react";
+import { AuthContext } from "./auth-context";
 
-export const AuthContext =
-  createContext(null);
-
-export function AuthProvider({
-  children,
-}) {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const savedUser =
-      localStorage.getItem("user");
+    const savedUser = localStorage.getItem("user");
 
     if (!savedUser) {
       return null;
@@ -44,7 +36,6 @@ export function AuthProvider({
 
   const logout = () => {
     localStorage.removeItem("user");
-
     setUser(null);
   };
 
