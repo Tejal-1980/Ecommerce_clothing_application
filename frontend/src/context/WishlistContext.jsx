@@ -1,7 +1,8 @@
 import { useState } from "react";
 
 import { useAuth } from "./useAuth";
-import { WishlistContext } from "./wishlist-context";
+
+import { WishlistContext } from "./WishlistContext";
 
 export function WishlistProvider({
   children,
