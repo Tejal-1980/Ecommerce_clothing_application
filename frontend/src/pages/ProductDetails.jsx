@@ -1,60 +1,98 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import { useCart } from "../context/useCart";
 import { useWishlist } from "../context/useWishlist";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
+  const BASEURL =
+    import.meta.env.VITE_DJANGO_BASE_URL;
 
   const { user } = useAuth();
   const { addToCart } = useCart();
+
   const {
     wishlist,
     addWishlist,
     removeWishlist,
   } = useWishlist();
 
-  const [product, setProduct] = useState(null);
-  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [product, setProduct] =
+    useState(null);
 
-  const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState("");
+  const [relatedProducts, setRelatedProducts] =
+    useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [quantity, setQuantity] =
+    useState(1);
+
+  const [selectedSize, setSelectedSize] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   const isWishlisted =
     product &&
-    wishlist.some((item) => item.id === product.id);
+    wishlist.some(
+      (item) =>
+        item.id === product.id
+    );
 
   useEffect(() => {
-    fetch(`${BASEURL}/api/products/${id}/`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Unable to load product");
+    async function fetchProduct() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${BASEURL}/api/products/${id}/`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Unable to load product"
+          );
         }
 
-        return res.json();
-      })
-      .then((data) => {
+        const data =
+          await response.json();
+
         setProduct(data);
 
-        return fetch(`${BASEURL}/api/products/`);
-      })
-      .then((res) => res.json())
-      .then((products) => {
+        const productsResponse =
+          await fetch(
+            `${BASEURL}/api/products/`
+          );
+
+        if (!productsResponse.ok) {
+          throw new Error(
+            "Unable to load related products"
+          );
+        }
+
+        const products =
+          await productsResponse.json();
+
         setRelatedProducts(products);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    fetchProduct();
   }, [BASEURL, id]);
 
   const requireLogin = () => {
@@ -67,7 +105,9 @@ function ProductDetails() {
   };
 
   const handleAddToCart = () => {
-    if (!requireLogin()) return;
+    if (!requireLogin()) {
+      return;
+    }
 
     if (!selectedSize) {
       alert(
@@ -76,11 +116,11 @@ function ProductDetails() {
       return;
     }
 
-    addToCart({
-      ...product,
-      size: selectedSize,
-      quantity,
-    });
+    addToCart(
+      product,
+      selectedSize,
+      quantity
+    );
 
     alert(
       `${product.name} added to cart - Size: ${selectedSize}`
@@ -88,7 +128,9 @@ function ProductDetails() {
   };
 
   const handleWishlist = () => {
-    if (!requireLogin()) return;
+    if (!requireLogin()) {
+      return;
+    }
 
     if (isWishlisted) {
       removeWishlist(product.id);
@@ -105,39 +147,34 @@ function ProductDetails() {
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
       <div className="min-h-screen flex justify-center items-center text-red-500 text-xl px-4 text-center">
-        {error}
+        {error || "Product not found"}
       </div>
     );
   }
 
   return (
     <div className="bg-gray-100 min-h-screen">
-
       <div className="max-w-7xl mx-auto py-6 sm:py-10 px-3 sm:px-6">
 
-        {/* Product Section */}
+        {/* PRODUCT SECTION */}
+
         <div className="grid md:grid-cols-2 gap-6 lg:gap-10 bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
 
-          {/* Product Image */}
-          <div className="rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+          {/* IMAGE */}
 
+          <div className="rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
             <img
               src={product.image}
               alt={product.name}
-              className="
-                block
-                w-full
-                h-auto
-                object-contain
-              "
+              className="block w-full h-auto object-contain"
             />
-
           </div>
 
-          {/* Product Information */}
+          {/* INFORMATION */}
+
           <div className="pt-2">
 
             <h1 className="text-3xl sm:text-4xl font-bold mb-3">
@@ -148,9 +185,9 @@ function ProductDetails() {
               {product.description}
             </p>
 
-            {/* Price */}
-            <div className="flex flex-wrap gap-3 items-center mb-5">
+            {/* PRICE */}
 
+            <div className="flex flex-wrap gap-3 items-center mb-5">
               <span className="text-2xl sm:text-3xl font-bold">
                 ₹{product.price}
               </span>
@@ -158,12 +195,11 @@ function ProductDetails() {
               <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                 In Stock
               </span>
-
             </div>
 
-            {/* Rating */}
-            <div className="flex gap-3 items-center mb-6">
+            {/* RATING */}
 
+            <div className="flex gap-3 items-center mb-6">
               <span className="text-yellow-500 text-lg">
                 ★★★★☆
               </span>
@@ -171,28 +207,37 @@ function ProductDetails() {
               <span className="text-gray-500 text-sm">
                 (4.5)
               </span>
-
             </div>
 
             {/* SIZE */}
-            <div className="mb-6">
 
+            <div className="mb-6">
               <p className="font-semibold mb-3">
                 Select Size
               </p>
 
               <div className="flex gap-3">
-
                 {[
-                  { value: "S", label: "Small" },
-                  { value: "M", label: "Medium" },
-                  { value: "L", label: "Large" },
+                  {
+                    value: "S",
+                    label: "Small",
+                  },
+                  {
+                    value: "M",
+                    label: "Medium",
+                  },
+                  {
+                    value: "L",
+                    label: "Large",
+                  },
                 ].map((size) => (
                   <button
                     key={size.value}
                     type="button"
                     onClick={() =>
-                      setSelectedSize(size.value)
+                      setSelectedSize(
+                        size.value
+                      )
                     }
                     className={`
                       border
@@ -200,7 +245,8 @@ function ProductDetails() {
                       py-3
                       rounded-lg
                       transition
-                      ${selectedSize === size.value
+                      ${selectedSize ===
+                        size.value
                         ? "bg-black text-white border-black"
                         : "border-gray-400 hover:border-black"
                       }
@@ -209,30 +255,30 @@ function ProductDetails() {
                     {size.label}
                   </button>
                 ))}
-
               </div>
 
               {selectedSize && (
                 <p className="text-green-600 text-sm mt-2">
-                  Selected size: {selectedSize}
+                  Selected size:{" "}
+                  {selectedSize}
                 </p>
               )}
-
             </div>
 
-            {/* Quantity */}
-            <div className="flex items-center gap-5 mb-6">
+            {/* QUANTITY */}
 
+            <div className="flex items-center gap-5 mb-6">
               <span className="font-medium">
                 Quantity:
               </span>
 
               <div className="flex items-center border rounded-lg overflow-hidden">
-
                 <button
                   onClick={() =>
                     quantity > 1 &&
-                    setQuantity(quantity - 1)
+                    setQuantity(
+                      quantity - 1
+                    )
                   }
                   className="px-4 py-2 hover:bg-gray-100"
                 >
@@ -245,32 +291,23 @@ function ProductDetails() {
 
                 <button
                   onClick={() =>
-                    setQuantity(quantity + 1)
+                    setQuantity(
+                      quantity + 1
+                    )
                   }
                   className="px-4 py-2 hover:bg-gray-100"
                 >
                   +
                 </button>
-
               </div>
-
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* BUTTONS */}
 
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleAddToCart}
-                className="
-                  w-full
-                  bg-black
-                  text-white
-                  px-6
-                  py-3
-                  rounded-lg
-                  hover:bg-gray-800
-                  transition
-                "
+                className="w-full bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition"
               >
                 Add To Cart
               </button>
@@ -294,12 +331,11 @@ function ProductDetails() {
                   ? "❤️ Wishlisted"
                   : "♡ Wishlist"}
               </button>
-
             </div>
 
-            {/* Product Details */}
-            <div className="mt-8 border-t pt-6">
+            {/* DETAILS */}
 
+            <div className="mt-8 border-t pt-6">
               <h2 className="text-xl sm:text-2xl font-semibold mb-3">
                 Product Details
               </h2>
@@ -307,12 +343,11 @@ function ProductDetails() {
               <p className="text-sm sm:text-base text-gray-700 leading-7">
                 {product.description}
               </p>
-
             </div>
 
-            {/* Reviews */}
-            <div className="mt-8 border-t pt-6">
+            {/* REVIEWS */}
 
+            <div className="mt-8 border-t pt-6">
               <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Customer Reviews
               </h2>
@@ -349,16 +384,14 @@ function ProductDetails() {
                 </div>
 
               </div>
-
             </div>
 
           </div>
-
         </div>
 
-        {/* Related Products */}
-        <div className="mt-10 sm:mt-14">
+        {/* RELATED PRODUCTS */}
 
+        <div className="mt-10 sm:mt-14">
           <h2 className="text-2xl sm:text-3xl font-bold mb-5">
             Related Products
           </h2>
@@ -374,36 +407,24 @@ function ProductDetails() {
               )
               .slice(0, 4)
               .map((item) => (
-
                 <div
                   key={item.id}
-                  className="
-                    bg-white
-                    rounded-lg
-                    shadow
-                    hover:shadow-xl
-                    transition
-                    overflow-hidden
-                  "
+                  onClick={() =>
+                    navigate(
+                      `/product/${item.id}`
+                    )
+                  }
+                  className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden cursor-pointer"
                 >
-
                   <div className="bg-gray-100 flex items-center justify-center overflow-hidden">
-
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="
-                        block
-                        w-full
-                        h-auto
-                        object-contain
-                      "
+                      className="block w-full h-auto object-contain"
                     />
-
                   </div>
 
                   <div className="p-3 sm:p-4">
-
                     <h3 className="font-semibold text-sm sm:text-lg">
                       {item.name}
                     </h3>
@@ -415,19 +436,13 @@ function ProductDetails() {
                     <p className="font-bold text-base sm:text-xl mt-2">
                       ₹{item.price}
                     </p>
-
                   </div>
-
                 </div>
-
               ))}
-
           </div>
-
         </div>
 
       </div>
-
     </div>
   );
 }
