@@ -1,88 +1,134 @@
-/* eslint-disable react-refresh/only-export-components */
-
 import {
   createContext,
-  useContext,
-  useEffect,
   useState,
 } from "react";
 
-import { useAuth } from "./AuthContext";
+import { useAuth } from "./useAuth";
 
-const WishlistContext = createContext();
+export const WishlistContext =
+  createContext(null);
 
-export function WishlistProvider({ children }) {
+export function WishlistProvider({
+  children,
+}) {
   const { user } = useAuth();
 
-  const userId = user
-    ? typeof user === "string"
-      ? user
-      : user.id || user.user_id || user.username
-    : null;
+  const userId =
+    user?.id ||
+    user?.user_id ||
+    user?.username ||
+    null;
 
   const storageKey = userId
     ? `wishlist_${userId}`
     : null;
 
-  const [wishlist, setWishlist] = useState([]);
-
-  // Load wishlist when user changes
-  useEffect(() => {
+  const loadWishlist = () => {
     if (!storageKey) {
-      setWishlist([]);
-      return;
-    }
-
-    const savedWishlist =
-      localStorage.getItem(storageKey);
-
-    if (!savedWishlist) {
-      setWishlist([]);
-      return;
+      return [];
     }
 
     try {
-      setWishlist(JSON.parse(savedWishlist));
+      const savedWishlist =
+        localStorage.getItem(
+          storageKey
+        );
+
+      if (!savedWishlist) {
+        return [];
+      }
+
+      const parsedWishlist =
+        JSON.parse(savedWishlist);
+
+      return Array.isArray(
+        parsedWishlist
+      )
+        ? parsedWishlist
+        : [];
     } catch (error) {
       console.error(
-        "Invalid wishlist data:",
+        "Error loading wishlist:",
         error
       );
 
-      setWishlist([]);
+      return [];
     }
-  }, [storageKey]);
+  };
 
-  // Save wishlist
-  useEffect(() => {
-    if (!storageKey) return;
+  return (
+    <WishlistProviderContent
+      key={storageKey || "guest"}
+      storageKey={storageKey}
+      initialWishlist={loadWishlist()}
+    >
+      {children}
+    </WishlistProviderContent>
+  );
+}
+
+function WishlistProviderContent({
+  children,
+  storageKey,
+  initialWishlist,
+}) {
+  const [wishlist, setWishlist] =
+    useState(initialWishlist);
+
+  const saveWishlist = (items) => {
+    if (!storageKey) {
+      return;
+    }
 
     localStorage.setItem(
       storageKey,
-      JSON.stringify(wishlist)
+      JSON.stringify(items)
     );
-  }, [wishlist, storageKey]);
+  };
 
   const addWishlist = (product) => {
-    if (!storageKey) return;
+    if (!storageKey) {
+      return;
+    }
 
-    setWishlist((prev) => {
-      const exists = prev.some(
-        (item) => item.id === product.id
+    const alreadyExists =
+      wishlist.some(
+        (item) =>
+          item.id === product.id
       );
 
-      if (exists) {
-        return prev;
-      }
+    if (alreadyExists) {
+      return;
+    }
 
-      return [...prev, product];
-    });
+    const updatedWishlist = [
+      ...wishlist,
+      product,
+    ];
+
+    setWishlist(updatedWishlist);
+    saveWishlist(updatedWishlist);
   };
 
   const removeWishlist = (id) => {
-    setWishlist((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
+    const updatedWishlist =
+      wishlist.filter(
+        (item) =>
+          item.id !== id
+      );
+
+    setWishlist(updatedWishlist);
+    saveWishlist(updatedWishlist);
+  };
+
+  const clearWishlist = () => {
+    setWishlist([]);
+
+    if (storageKey) {
+      localStorage.removeItem(
+        storageKey
+      );
+    }
   };
 
   return (
@@ -91,21 +137,10 @@ export function WishlistProvider({ children }) {
         wishlist,
         addWishlist,
         removeWishlist,
+        clearWishlist,
       }}
     >
       {children}
     </WishlistContext.Provider>
   );
-}
-
-export function useWishlist() {
-  const context = useContext(WishlistContext);
-
-  if (!context) {
-    throw new Error(
-      "useWishlist must be used inside WishlistProvider"
-    );
-  }
-
-  return context;
 }

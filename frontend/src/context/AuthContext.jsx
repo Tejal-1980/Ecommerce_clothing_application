@@ -1,25 +1,50 @@
-/* eslint-disable react-refresh/only-export-components */
-
 import {
   createContext,
-  useContext,
   useState,
 } from "react";
 
-const AuthContext = createContext();
+export const AuthContext =
+  createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(
-    localStorage.getItem("user") || null
-  );
+export function AuthProvider({
+  children,
+}) {
+  const [user, setUser] = useState(() => {
+    const savedUser =
+      localStorage.getItem("user");
 
-  const login = (username) => {
-    localStorage.setItem("user", username);
-    setUser(username);
+    if (!savedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(savedUser);
+    } catch {
+      return {
+        username: savedUser,
+      };
+    }
+  });
+
+  const login = (userData) => {
+    const userObject =
+      typeof userData === "string"
+        ? {
+          username: userData,
+        }
+        : userData;
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(userObject)
+    );
+
+    setUser(userObject);
   };
 
   const logout = () => {
     localStorage.removeItem("user");
+
     setUser(null);
   };
 
@@ -34,8 +59,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

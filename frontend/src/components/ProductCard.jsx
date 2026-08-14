@@ -1,22 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-import { useCart } from "../context/CartContext";
-import { useWishlist } from "../context/WishlistContext";
-import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/useCart";
+import { useWishlist } from "../context/useWishlist";
+import { useAuth } from "../context/useAuth";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
 
   const { user } = useAuth();
+
   const { addToCart } = useCart();
-  const { wishlist, addWishlist, removeWishlist } = useWishlist();
 
-  const [selectedSize, setSelectedSize] = useState("");
+  const {
+    wishlist,
+    addWishlist,
+    removeWishlist,
+  } = useWishlist();
 
-  const isWishlisted = wishlist.some(
-    (item) => item.id === product.id
-  );
+  const [selectedSize, setSelectedSize] =
+    useState("");
+
+  const isWishlisted =
+    wishlist.some(
+      (item) =>
+        item.id === product.id
+    );
 
   const requireLogin = () => {
     if (!user) {
@@ -29,33 +38,44 @@ function ProductCard({ product }) {
 
   const handleProductClick = () => {
     if (requireLogin()) {
-      navigate(`/product/${product.id}`);
+      navigate(
+        `/product/${product.id}`
+      );
     }
   };
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
 
-    if (!requireLogin()) return;
-
-    if (!selectedSize) {
-      alert("Please select a size: Small, Medium, or Large.");
+    if (!requireLogin()) {
       return;
     }
 
-    addToCart({
-      ...product,
-      size: selectedSize,
-      quantity: 1,
-    });
+    if (!selectedSize) {
+      alert(
+        "Please select a size: Small, Medium, or Large."
+      );
+      return;
+    }
 
-    alert(`Added to cart - Size: ${selectedSize}`);
+    // IMPORTANT:
+    // product and size are separate arguments
+    addToCart(
+      product,
+      selectedSize
+    );
+
+    alert(
+      `Added to cart - Size: ${selectedSize}`
+    );
   };
 
   const handleWishlist = (e) => {
     e.stopPropagation();
 
-    if (!requireLogin()) return;
+    if (!requireLogin()) {
+      return;
+    }
 
     if (isWishlisted) {
       removeWishlist(product.id);
@@ -65,14 +85,29 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition border border-gray-200 flex flex-col">
+    <div
+      className="
+        bg-white
+        rounded-lg
+        overflow-hidden
+        shadow-sm
+        hover:shadow-md
+        transition
+        border
+        border-gray-200
+        flex
+        flex-col
+        h-full
+      "
+    >
 
-      {/* Product Image */}
+      {/* IMAGE */}
       <div
         onClick={handleProductClick}
         className="
           cursor-pointer
           w-full
+          aspect-[4/5]
           bg-gray-100
           flex
           items-center
@@ -85,80 +120,156 @@ function ProductCard({ product }) {
           alt={product.name}
           loading="lazy"
           className="
-            block
             w-full
-            h-auto
+            h-full
             object-contain
-            transition-transform
-            duration-300
-            hover:scale-105
+            block
           "
         />
       </div>
 
-      {/* Product Information */}
-      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
+      {/* PRODUCT INFORMATION */}
+      <div
+        className="
+          p-2
+          sm:p-3
+          md:p-4
+          flex
+          flex-col
+          flex-1
+        "
+      >
 
-        <h2 className="text-sm sm:text-base md:text-lg font-semibold">
+        <h2
+          className="
+            text-sm
+            sm:text-base
+            md:text-lg
+            font-semibold
+          "
+        >
           {product.name}
         </h2>
 
-        <p className="text-[11px] sm:text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
+        <p
+          className="
+            text-[11px]
+            sm:text-xs
+            md:text-sm
+            text-gray-500
+            mt-1
+            line-clamp-2
+          "
+        >
           {product.description}
         </p>
 
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-sm sm:text-base md:text-xl font-bold">
+        {/* PRICE */}
+        <div
+          className="
+            flex
+            justify-between
+            items-center
+            mt-2
+          "
+        >
+          <p
+            className="
+              text-sm
+              sm:text-base
+              md:text-xl
+              font-bold
+            "
+          >
             ₹{product.price}
           </p>
 
-          <span className="text-[10px] sm:text-xs md:text-sm text-green-600 font-semibold">
+          <span
+            className="
+              text-[10px]
+              sm:text-xs
+              md:text-sm
+              text-green-600
+              font-semibold
+            "
+          >
             In Stock
           </span>
         </div>
 
         {/* SIZE */}
         <div className="mt-3">
-          <p className="text-xs sm:text-sm font-semibold mb-2">
+
+          <p
+            className="
+              text-xs
+              sm:text-sm
+              font-semibold
+              mb-2
+            "
+          >
             Select Size
           </p>
 
-          <div className="grid grid-cols-3 gap-1.5">
-            {["S", "M", "L"].map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedSize(size);
-                }}
-                className={`
-                  border
-                  py-1.5
-                  rounded
-                  text-xs
-                  sm:text-sm
-                  transition
-                  ${selectedSize === size
-                    ? "bg-black text-white border-black"
-                    : "border-gray-400 hover:border-black"
-                  }
-                `}
-              >
-                {size}
-              </button>
-            ))}
+          <div
+            className="
+              grid
+              grid-cols-3
+              gap-1.5
+            "
+          >
+            {["S", "M", "L"].map(
+              (size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    setSelectedSize(
+                      size
+                    );
+                  }}
+                  className={`
+                    border
+                    py-1.5
+                    rounded
+                    text-xs
+                    sm:text-sm
+                    transition
+                    ${selectedSize ===
+                      size
+                      ? "bg-black text-white border-black"
+                      : "border-gray-400 hover:border-black"
+                    }
+                  `}
+                >
+                  {size}
+                </button>
+              )
+            )}
           </div>
 
           {selectedSize && (
-            <p className="text-xs text-green-600 mt-1">
+            <p
+              className="
+                text-xs
+                text-green-600
+                mt-1
+              "
+            >
               Size {selectedSize} selected
             </p>
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="mt-auto pt-3">
+        {/* BUTTONS */}
+        <div
+          className="
+            mt-auto
+            pt-3
+          "
+        >
 
           <button
             onClick={handleProductClick}
@@ -219,7 +330,9 @@ function ProductCard({ product }) {
               }
             `}
           >
-            {isWishlisted ? "❤️ Wishlisted" : "♡ Wishlist"}
+            {isWishlisted
+              ? "❤️ Wishlisted"
+              : "♡ Wishlist"}
           </button>
 
         </div>

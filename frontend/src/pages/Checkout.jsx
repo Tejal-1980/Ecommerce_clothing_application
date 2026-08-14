@@ -10,7 +10,9 @@ function Checkout() {
   const { cartItems } = useCart();
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum +
+      Number(item.price) * item.quantity,
     0
   );
 
